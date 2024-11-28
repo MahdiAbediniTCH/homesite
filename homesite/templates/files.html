@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+{% block content %}
+    <script>
+        function sendFileDeleteRequest(name) {
+            var conf = confirm('آیا از حذف فایل ' + name + ' مطمئنید؟');
+            if (conf) {
+                console.log('confirmed');
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/delete", true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({
+                    cmd: "remove_file",
+                    file_name: name,
+                }));
+                setTimeout(() => {  window.location.reload(false) }, 500);
+            }
+        }
+    </script>
+    <div class="content-section col-md-8">
+        <div>
+            <form method="POST" action="/upload_files" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">بارگذاری فایل</legend>
+                    <div class="form-group">
+                        {{ form.name.label(class="form-control-label") }}
+    
+                        {% if form.name.errors %}
+                            {{ form.name(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.name.errors %}
+                                    <span> {{ error }} </span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.name(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.files.label() }}
+                        {{ form.files(required=False, class="form-control-file") }}
+                        {% if form.files.errors %}
+                            {% for error in form.files.errors %}
+                                <span class="text-danger">{{ error }}</span></br>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </fieldset>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-outline-info")}}
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="content-section col-md">
+        <!-- files table -->
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col" style="text-align: center;">#</th>
+                        <th scope="col" style="text-align: center;">نام فایل</th>
+                        <th scope="col" style="text-align: center;">اندازه فایل</th>
+                        <th scope="col" style="text-align: center;">توسط</th>
+                        <th scope="col" style="text-align: center;">در تاریخ</th>
+                        <th scope="col" style="text-align: center;">دانلود</th>
+                        <th scope="col" style="text-align: center;">حذف</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in files|reverse %}
+                        <tr>
+                            <th scope="row" style="text-align: center;">{{ loop.index }}</th>
+                            <td class="english-text" style="text-align: center;">{{ file.display_name }}</td>
+                            <td class="english-text" style="text-align: center;"> {{ file.file_size }} <br> MB </td>
+                            <td style="text-align: center;">
+                                {% if file.creator_username %}
+                                    {{ file.creator_username }}
+                                {% else %}
+                                    ناشناس
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center;">{{ file.datetime_uploaded }}</td>
+                            <td style="text-align: center;"><a href="{{ upload_path + file.file_name }}" download="{{ file.display_name }}">دانلود</a></td>
+                            <td style="text-align: center;">
+                                {% if current_user.username == file.creator_username and
+                                     current_user.username != "guest" or current_user.username == "admin" %}
+                                    <button class="btn btn-danger" onclick="sendFileDeleteRequest('{{ file.file_name }}')">حذف</button>
+                                {% else %}
+                                    <button class="btn btn-danger" disabled>حذف</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}

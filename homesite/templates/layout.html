@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Language" content="fa">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="theme-color" content="#72c610">
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap-grid.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap-reboot.css') }}">
+<style>
+    @font-face { font-family: Roya; src: url("{{ url_for('static', filename='font/B Roya Bold.ttf') }}"); } 
+</style>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
+
+<script src="{{ url_for('static', filename='jquery/jquery-3.4.1.js') }}"></script>
+{% if title %}
+    <title>{{site_name}} - {{title}}</title>
+{% else %}
+    <title>{{site_name}}</title>
+{% endif %}
+
+</head>
+<body>
+    <header class="site-header">
+        <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+            <div class="container">
+            <a class="navbar-brand mr-4" id="headlink" href="/">{{ site_name }}</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarToggle">
+                <div class="navbar-nav mr-auto">
+                    <a class="nav-item nav-link persian-navbar-item" href="{{ url_for('home') }}">یادداشت ها</a>
+                    <a class="nav-item nav-link persian-navbar-item" href="{{ url_for('files') }}">فایل ها</a>
+                    <a class="nav-item nav-link persian-navbar-item" href="{{ url_for('new_note') }}">یادداشت جدید</a>
+                </div>
+                <div class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                        <div class="nav-item nav-link persian-navbar-item">{{ current_user.username }}</div>
+                        <a class="nav-item nav-link persian-navbar-item" href="{{ url_for('logout') }}">خروج</a>
+                    {% else %}
+                        <a class="nav-item nav-link persian-navbar-item" href="{{ url_for('login') }}">ورود</a>
+                        <a class="nav-item nav-link persian-navbar-item" href="{{ url_for('register') }}">ثبت نام</a>
+                    {% endif %}
+                </div>
+            </div>
+            </div>
+        </nav>
+    </header>
+    <main role="main" class="container">
+        <div class="row">
+            <div class="col-md" style="padding-left:0px">
+                <div class="col-md-8" style="padding:0% !important">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </main>
+    <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.js') }}"></script>
+</body>
+</html>

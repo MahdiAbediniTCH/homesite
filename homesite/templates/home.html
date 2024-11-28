@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block content %}
+    <script>
+        function sendNoteDeleteRequest(id) {
+            var conf = confirm('آیا از حذف این یادداشت مطمئنید؟');
+            if (conf) {
+                console.log('confirmed');
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/delete", true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({
+                    cmd: "remove_note",
+                    note_id: id,
+                }));
+                setTimeout(() => {  window.location.reload(false) }, 500);
+            }
+        }
+        function copyToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.style.position = 'fixed';
+            textArea.style.top = 0;
+            textArea.style.left = 0;
+            textArea.style.width = '2em';
+            textArea.style.height = '2em';
+            textArea.style.padding = 0;
+            textArea.style.border = 'none';
+            textArea.style.outline = 'none';
+            textArea.style.boxShadow = 'none';
+            textArea.style.background = 'transparent';
+            textArea.value = text;
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+            var successful = document.execCommand('copy');
+            } catch (err) {
+            console.log('Oops, unable to copy');
+            }
+
+            document.body.removeChild(textArea);
+        }
+    </script>
+    <div class="content-section col-md-8">
+        {% for note in notes|reverse %}
+            <hr>
+            <h6 class="text-muted">{{ note.date_posted }}</h6>
+            {% if note.author == current_user %}
+                <h5 class="note-inline text-info">شما:</h5>&nbsp;
+            {% else %}
+                <h5 class="note-inline">{{ note.author.display_name }} :</h5>&nbsp;
+            {% endif %}
+            {% if note.author == current_user or current_user.username == "admin" %}
+                <button onclick="sendNoteDeleteRequest({{ note.id }})" class="note-inline btn btn-sm btn-danger ml-2" style="float:left;">حذف</button>
+            {% else %}
+                <button class="note-inline btn btn-sm btn-danger ml-2" style="float:left;" disabled>حذف</button>
+            {% endif %}
+            {% if note.author == current_user %}
+                <a href="{{ url_for('edit_note', note_id=note.id) }}" class="note-inline btn btn-sm btn-warning ml-2" style="float:left;">ویرایش</a>
+            {% else %}
+                <button class="note-inline btn btn-sm btn-warning ml-2" style="float:left;" disabled>ویرایش</button>
+            {% endif %}
+            <button onclick="copyToClipboard('{{ note.content }}')" class="note-inline btn btn-sm btn-info ml-2" style="float:left;">کپی</button>
+            {% if note.title %}
+                <h4 class="article-title">{{ note.title }}</h4>
+            {% else %}
+                <br>
+            {% endif %}
+            <div class="note-content">{{ note.content }}</div> 
+        {% endfor %}
+    </div>
+{% endblock content %}
