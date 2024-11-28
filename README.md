@@ -1,2 +1,2 @@
-# homesite
-An Flask project I wrote as a utility for sharing files and text on a local network
+# Homesite
+An old project intended as a utility for sharing files and text on a local network using Flask and SQLAlchemy
